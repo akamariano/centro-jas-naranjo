@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    font-optical-sizing: auto;
+  }
+  body {
+    /* El negro con degradado vive en <AmbientBackground> (fixed, detrás de todo);
+       el body se queda transparente para que se vea. Texto claro por defecto. */
+    @apply text-paper;
+    background-color: #050505;
+    line-height: 1.5;
+  }
+}
+
+@layer components {
+  /* Feedback lives on the press: instant, physical, never waits for release. */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium
+      active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100;
+    transition: background-color 150ms ease-out, background-position 650ms cubic-bezier(0.32, 0.72, 0, 1),
+      color 150ms ease-out, border-color 150ms ease-out, box-shadow 200ms ease-out, transform 150ms ease-out;
+  }
+  .btn-primary {
+    @apply btn border border-white/10 bg-ink text-paper hover:bg-ink-800;
+    /* Un destello diagonal que recorre el botón al pasar el mouse — vive en el
+       background-image del propio botón (no en un ::before), así nunca hay que
+       pelear con z-index: el texto siempre pinta encima de los fondos. */
+    background-image: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.3) 50%, transparent 65%);
+    background-size: 220% 100%;
+    background-position: 150% 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+  .btn-primary:hover {
+    background-position: -50% 0;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 12px 32px -8px rgba(255, 255, 255, 0.25);
+  }
+  .btn-secondary {
+    @apply btn bg-paper text-ink border border-ink/20 hover:bg-paper-100;
+    transition: background-color 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out,
+      box-shadow 200ms ease-out, transform 150ms ease-out;
+  }
+  .btn-secondary:hover {
+    box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.18);
+  }
+  .btn-ghost {
+    @apply btn text-ink hover:bg-paper-100;
+    transition: background-color 150ms ease-out, color 150ms ease-out, transform 150ms ease-out;
+  }
+  .input {
+    @apply w-full rounded-lg border border-ink/20 bg-paper px-3.5 py-2.5 text-sm text-ink
+      placeholder:text-ink/40 transition-[border-color,box-shadow] duration-150 ease-out
+      focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink/80;
+  }
+  .card {
+    /* text-ink explícito: el body ahora es claro por defecto (fondo oscuro),
+       así que cualquier texto dentro de una tarjeta que dependiera de heredar
+       el color necesita esta base para seguir siendo oscuro sobre blanco. */
+    @apply rounded-2xl border border-ink/10 bg-paper p-6 text-ink shadow-card;
+  }
+
+  /* Translucent chrome: content scrolls under it, weight signals hierarchy. */
+  .material-nav {
+    @apply relative bg-paper/70 backdrop-blur-xl backdrop-saturate-150;
+  }
+  .material-nav::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+  }
+  /* Efecto de borde de scroll, no un divisor duro: una sombra que se desvanece
+     justo donde el contenido pasa bajo el material flotante. */
+  .material-nav::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 14px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.07), transparent);
+    pointer-events: none;
+  }
+
+  /* Typography: hierarchy from weight + size + leading + tracking, together. */
+  .text-display {
+    font-size: clamp(1.875rem, 4vw + 1rem, 3rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+  .text-title {
+    font-size: 1.375rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+  }
+}
+
+@layer utilities {
+  /* A surface arriving as a real material: opacity + scale + blur together,
+     not a plain fade. Used for cards, dropdowns and panels that appear in
+     response to a direct action (never on passive page load). */
+  @keyframes materialize {
+    from {
+      opacity: 0;
+      transform: scale(0.97) translateY(4px);
+      filter: blur(6px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      filter: blur(0);
+    }
+  }
+  .animate-materialize {
+    animation: materialize 420ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
+  /* Fondo ambiental: burbujas grandes que respiran lentamente… */
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(var(--drift-x, 30px), var(--drift-y, -24px)) scale(1.08); }
+  }
+  .animate-drift {
+    animation: drift var(--drift-duration, 22s) ease-in-out infinite;
+  }
+
+  /* …y destellos pequeños que titilan, cada uno a su propio ritmo. */
+  @keyframes twinkle {
+    0%, 100% { opacity: var(--twinkle-min, 0.15); transform: scale(0.85); }
+    50% { opacity: var(--twinkle-max, 0.9); transform: scale(1); }
+  }
+  .animate-twinkle {
+    animation: twinkle var(--twinkle-duration, 4s) ease-in-out infinite;
+  }
+
+  /* Scrim de un diálogo modal: atenúa el fondo para enfocar la tarea, nunca
+     bloquea de golpe — solo una transición de opacidad rápida. */
+  @keyframes scrim-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-scrim {
+    animation: scrim-in 200ms ease-out both;
+  }
+}
+
+/* Reduced motion: keep the feedback, drop the motion — cross-fade instead. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .animate-materialize {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Reduced transparency: make translucent chrome solid instead of blurred. */
+@media (prefers-reduced-transparency: reduce) {
+  .material-nav {
+    @apply bg-paper backdrop-blur-none backdrop-saturate-100;
+  }
+}
+
+/* Higher contrast: near-solid surfaces with a defined, visible border. */
+@media (prefers-contrast: more) {
+  .material-nav {
+    @apply bg-paper backdrop-blur-none backdrop-saturate-100;
+    border-bottom: 1px solid rgba(10, 10, 10, 0.35);
+  }
+  .material-nav::after {
+    display: none;
+  }
+  .card {
+    border-color: rgba(10, 10, 10, 0.35);
+  }
+  .input {
+    border-color: rgba(10, 10, 10, 0.45);
+  }
+  .btn-primary {
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+}

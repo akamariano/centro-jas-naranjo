@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.local
+
+# Backend
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Frontend
+frontend/dist/
+
+# Sistema
+.DS_Store
+
+# Estado local de Claude Code (no es parte del proyecto)
+.claude/
