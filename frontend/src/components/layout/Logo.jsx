@@ -20,7 +20,11 @@ export default function Logo({
   textClassName = "",
   className = "",
 }) {
-  const iconSrc = variant === "blanco" ? "/logos/CJN_Icono_Blanco.png" : "/logos/CJN_Icono_Negro.png";
+  // Ruta absoluta hardcodeada (no una importación de módulo), así que Vite no la
+  // reescribe sola con el base path — hay que anteponer BASE_URL a mano para que
+  // funcione también en GitHub Pages (donde la app vive en /<repo>/, no en "/").
+  const nombreArchivo = variant === "blanco" ? "CJN_Icono_Blanco.png" : "CJN_Icono_Negro.png";
+  const iconSrc = `${import.meta.env.BASE_URL}logos/${nombreArchivo}`;
   const textColor = variant === "blanco" ? "text-paper" : "text-ink";
   const wrapperBase = stacked ? "flex flex-col items-center gap-2" : "inline-flex items-center gap-2.5";
   const defaultTextSize = stacked ? "text-xl" : "text-base";
